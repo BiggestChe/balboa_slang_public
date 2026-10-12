@@ -187,18 +187,55 @@ def compose_transformation(transforms):
         Given a list of transformations, compose them into a matrix.
     """
 
+    #makes a 3x3 matrix with 1s on the diagonal and 0s elsewhere
     F = np.eye(3, dtype=np.float32)
 
     for transform in transforms:
-        pass
-        # TODO: your code here
+        if 'scale' in transform:
+            sx, sy = transform['scale']
+            S = np.array([[sx, 0, 0],
+                          [0, sy, 0],
+                          [0, 0, 1]], dtype=np.float32)
+
+            #mat mult in numpy
+            F = S @ F
+        elif 'translate' in transform:
+            tx, ty = transform['translate']
+            T = np.array([[1, 0, tx],
+                          [0, 1, ty],
+                          [0, 0, 1]], dtype=np.float32)
+            F = T @ F
+        elif 'rotate' in transform:
+            theta = np.radians(transform['rotate'][0])
+            R = np.array([[np.cos(theta), -np.sin(theta), 0],
+                          [np.sin(theta), np.cos(theta), 0],
+                          [0, 0, 1]], dtype=np.float32)
+            F = R @ F
+        elif 'shear_x' in transform:
+            shx = transform['shear_x']
+            Shx = np.array([[1, shx, 0],
+                            [0, 1, 0],
+                            [0, 0, 1]], dtype=np.float32)
+            F = Shx @ F
+        elif 'shear_y' in transform:
+            shy = transform['shear_y']
+            Shy = np.array([[1, 0, 0],
+                            [shy, 1, 0],
+                            [0, 0, 1]], dtype=np.float32)
+            F = Shy @ F
 
     return F
 
 def interpolate_transformation(transform_keyframes, t):
-    # TODO: your code here
+    """
+        Given a list of keyframes, interpolate the transformations at time t.
+        Returns a list of transformations.
+    """
 
-    # Should never happen?
+    
+
+
+
     assert False
 
 def upload_scene(scene, module, slang_device, t=0.0):
