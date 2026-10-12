@@ -200,7 +200,7 @@ def compose_transformation(transforms):
             #mat mult in numpy
             F = S @ F
         elif 'translate' in transform:
-            tx, ty = transform['translate']
+            tx, ty = transform['translate'] 
             T = np.array([[1, 0, tx],
                           [0, 1, ty],
                           [0, 0, 1]], dtype=np.float32)
@@ -212,13 +212,13 @@ def compose_transformation(transforms):
                           [0, 0, 1]], dtype=np.float32)
             F = R @ F
         elif 'shear_x' in transform:
-            shx = transform['shear_x']
+            shx = transform['shear_x'][0]
             Shx = np.array([[1, shx, 0],
                             [0, 1, 0],
                             [0, 0, 1]], dtype=np.float32)
             F = Shx @ F
         elif 'shear_y' in transform:
-            shy = transform['shear_y']
+            shy = transform['shear_y'][0]
             Shy = np.array([[1, 0, 0],
                             [shy, 1, 0],
                             [0, 0, 1]], dtype=np.float32)
@@ -227,16 +227,32 @@ def compose_transformation(transforms):
     return F
 
 def interpolate_transformation(transform_keyframes, t):
-    """
-        Given a list of keyframes, interpolate the transformations at time t.
-        Returns a list of transformations.
-    """
-
-    
 
 
+    #find the keyframe before (k0) and after (k1) time t
+    for i in range(len(transform_keyframes) - 1):
+        k0 = transform_keyframes[i]
+        k1 = transform_keyframes[i + 1]
+        if k0['time'] <= t <= k1['time']:
+            break
 
-    assert False
+    #formula from homework
+    t0 = k0['time']
+    t1 = k1['time']
+    w = (t - t0) / (t1 - t0)
+
+    #linear interpolation function for blending two values a and b with weight w
+    blend = lambda a, b: (1 - w) * a + w * b
+
+    # Blend each transform step 
+    result = []
+    for step0, step1 in zip(k0['transform'], k1['transform']):
+        for name, values_0 in step0.items():     
+            values_1 = step1[name]                
+            blended = [blend(a, b) for a, b in zip(values_0, values_1)]
+            result.append({name: blended})     
+
+    return result
 
 def upload_scene(scene, module, slang_device, t=0.0):
     # Keyframe parameters are interpolated on the CPU;
