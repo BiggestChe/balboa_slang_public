@@ -12,5 +12,20 @@ void compute_main(uint2 tid : SV_DispatchThreadID,
     }
 
     image[tid] = float4(1.0);
-    // TODO: your code here
+    
+
+    //get pixel position
+    float2 pixel = float2(tid.x, tid.y);
+
+    float dist = distance(pixel, center);
+
+        //check if pixel is in circle
+        if (dist <= radius) {
+        image[tid] = float4(color, 1.0);
+        }
+        else {
+            image[tid] = float4(1.0, 1.0, 1.0, 1.0);
+        }
+
+
 }
